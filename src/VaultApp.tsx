@@ -65,6 +65,7 @@ export default function VaultApp(){
   const actionLabel=!account?'Connect wallet':!correctChain?'Switch network':env==='mainnet'?'Mainnet is not open':!live?'Vault deployment pending':!notes?'Unlock your notes':tab==='deposit'?'Review deposit':'Prove & withdraw';
 
   useEffect(()=>{document.title='Your vault · Yieldveil';},[]);
+  useEffect(()=>{const syncRoute=()=>{const next=new URLSearchParams(location.search).get('network')==='mainnet'?'mainnet':'testnet';setEnv(next);const hash=location.hash.slice(1);setView((['activity','notes','protocol','deployment'] as string[]).includes(hash)?hash as View:'vault');setMenu(false);};window.addEventListener('hashchange',syncRoute);window.addEventListener('popstate',syncRoute);return()=>{window.removeEventListener('hashchange',syncRoute);window.removeEventListener('popstate',syncRoute);};},[]);
   useEffect(()=>{if(!toast)return;const timer=setTimeout(()=>setToast(''),8000);return()=>clearTimeout(timer);},[toast]);
   useEffect(()=>{if(auth)authDialog.current?.showModal();else authDialog.current?.close();},[auth]);
   useEffect(()=>{if(pendingDeposit)depositDialog.current?.showModal();else depositDialog.current?.close();},[pendingDeposit]);
