@@ -1,0 +1,23 @@
+{
+  "circuit": "Yieldveil full-note withdrawal v1",
+  "depth": 16,
+  "setup": "Local phase 1 and single-contributor phase 2 - TESTNET ONLY",
+  "artifacts": {
+    "withdraw.wasm": {
+      "sha256": "a5d3b2e4f023ae38af5827a05ad8bc2a20d3ca2e039484c645e8c9f730d732a0",
+      "bytes": 1807034
+    },
+    "withdraw.zkey": {
+      "sha256": "2f92288d7f88a39048f90a904f62a275cb95d7199e2efd0f55ce318ca0d53704",
+      "bytes": 4873831
+    },
+    "verification_key.json": {
+      "sha256": "8af25f01108c140013965db7bc6c3b08f72ed58c9ffb7c7057e26e2d343b169d",
+      "bytes": 4023
+    }
+  },
+  "sources": {
+    "circuits/withdraw.circom": "9669dcb0a83e5ea81cac915e466374db4538cc5039320805bdf33a963eb4f103",
+    "contracts/WithdrawalVerifier.sol": "e63d25407503c70fd910529f97c9197db77472b89471325f0eb7812bf7fb80dc"
+  }
+}

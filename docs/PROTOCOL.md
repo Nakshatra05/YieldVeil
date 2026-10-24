@@ -1,58 +1,35 @@
-# Protocol integration contract — proposed, not deployed
+# Hoodi protocol v1
 
-This document defines the boundary between the working local UI prototype and the protocol described in the HLD. The frontend currently calls only `src/lib/protocol.ts`; it never substitutes a local simulation for an onchain success receipt.
+The immutable pool accepts ETH via Lido wstETH receive or transfers wstETH directly. It credits actual balance delta, enforces minimum received shares on ETH deposits, and has no owner withdrawal, upgrades or arbitrary execution.
 
-## Accounted asset
+## Note statement
 
-Use wstETH shares as the committed unit. A deposit credits the pool's measured balance delta after staking/wrapping, subject to a user-signed minimum share amount. Do not credit an oracle quote. Use integer arithmetic throughout; reject zero shares and field overflow.
+- precommitment = Poseidon2(nullifier, secret)
+- commitment = Poseidon2(value, precommitment)
+- nullifierHash = Poseidon2(nullifier, 0)
 
-Value display is `shares × stEthPerToken / 1e18`. That is a stETH redemption estimate, not guaranteed ETH exit proceeds. An ETH exit needs a separately quoted swap with proof-bound minimum output and expiry.
+Random nonzero secrets are generated in the browser. Duplicate precommitments are forbidden. Commitments enter a depth-16 tree, with 64 recent roots and leaf pagination of at most 256. Clients fetch the complete tree. Fixed wstETH shares have a variable stETH redemption value; there is no ETH redemption path.
 
-## Cryptographic boundary
+## Withdrawal
 
-HLD commitments:
+Private witness: nullifier, secret, 16 siblings and boolean path indices. Public signals in Solidity order: authorization, root, nullifierHash, value, context, mode, exposedCommitment.
 
-```text
-precommitment = Poseidon(nullifier, secret)
-label         = Poseidon(scope, nonce)
-commitment    = Poseidon(value, label, precommitment)
-nullifierHash = Poseidon(nullifier)
-```
+Context is keccak256(abi.encode(chainId, pool, recipient, relayer, fee, deadline)) modulo the BN254 scalar field. Authorization is Poseidon2(nullifier, context), binding context inside the circuit. The circuit constrains the same value/secrets to a tree leaf, value to 128 bits, and mode/path indices to booleans. Withdrawals consume the whole note, without change outputs.
 
-The demo uses the same commitment/hash shape but random labels; it has no pool scope, deposit counter, chain-derived Merkle tree, or ASP tree. It does not produce compatible testnet witnesses.
+The pool checks context, root, nullifier, amount, recipient, deadline and Groth16 proof. Effects precede transfers; all mutating functions are reentrancy-guarded. Nonzero fees require the named relayer to submit. The UI uses zero fees and has no hosted relayer.
 
-The proposed withdrawal circuit must prove commitment inclusion, label inclusion in the approved set, ownership, a 128-bit amount constraint, conservation of shares, and a correctly formed change note. It must bind every executable output to a domain-separated context: chain ID, pool, recipient, relayer, fee, exit adapter, destination chain, minimum output, deadline, and route-data hash. Reject out-of-field values rather than accepting modular aliases.
+Mode 0 exposes no commitment. Mode 1 exposes the commitment and requires its original depositor as both sender and recipient, with zero fee. Both modes require a valid proof and consume the same nullifier. Public exit cannot bypass lost artifacts or unavailable proving.
 
-Before paying out, contracts validate recognized state/association roots, freshness policy, context, verifier result and unused nullifier. Mark the nullifier before external calls; update liabilities and tree; then transfer payout and fee. Unknown roots, expired quotes, bad proofs, and unsupported adapters must revert atomically.
+## Trust and limits
 
-Changing a circuit changes the verification key. Do not publish generated proving artifacts from a single-party setup as production-ready. Verify dependency licenses and pinned audit scope; review circuits and Solidity independently.
+Only chains 560048 and local 31337 are accepted. Caps: 0.1 ETH/wstETH deposit, 10 wstETH outstanding liabilities, 65,536 lifetime leaves. No pause or upgrade exists. The single-contributor setup, contract and circuit are unaudited and only for testnet.
 
-## Proposed services
+Amounts, deposit accounts and timing are public. Unique amounts and gas funding can link exits. UI sender checks do not guarantee anonymity. No association-set provider, screening claim, relayer or cross-chain guarantee is included.
 
-These endpoints are a design, not currently hosted services:
+## Client integrity
 
-| Endpoint | Required behavior |
-| --- | --- |
-| `GET /v1/tree/leaves?from=<index>` | Public confirmed leaf pages, ordered and complete; include finalized block hash, tree version, total count and root. Never fetch a user-specific path. Client downloads all pages and reconstructs the root. |
-| `GET /v1/roots/latest` | State root, association root, chain ID, pool, finalized block hash, root timestamps and policy. |
-| `GET /v1/asp/set` | Full approved-label snapshot tied to its root and immutable content hash. No private membership query. |
-| `GET /v1/stats` | Chain-derived TVL and counts with block/freshness metadata, never fabricated privacy guarantees. |
-| `POST /v1/quote` | Public output parameters only; return a short-lived quote including chain, pool, gross amount, fee asset, fee, relayer, min output, destination and expiry. |
-| `POST /v1/relay` | Accept public withdrawal inputs and ZK proof only. Verify offchain, simulate the exact call, submit and return a status ID. No note secrets, passphrase, witness or selected leaf index. |
-| `GET /v1/relay/:id` | Pending/confirmed/reverted/reorged state, transaction hash and confirmed block. |
+The client compares deployed pool/verifier/hasher runtime bytecode to committed artifacts, masking only compiler-declared immutable slots. It separately checks token/verifier/hasher addresses. Deployment resumption is keyed to release bytecode and stores transaction hashes before confirmation.
 
-Rebuild the indexer on reorgs. Pin block hashes when generating a witness. Persist pending note transitions before relay submission and finalize them from verified chain receipts. Submission failure must leave the original note spendable unless the onchain nullifier is spent. A transaction hash alone is not settlement.
+AES-256-GCM notes use random salt (16 bytes), nonce (12 bytes) and PBKDF2-SHA256 with 310,000 iterations. Versioned encrypted state uses Web Locks where available and rejects stale cross-tab writes. Deposit receipts populate amounts/commitments; nullifier reads reconcile spent notes. A pre-deposit backup and confirmed receipt can recover metadata, but lost secrets cannot be recreated.
 
-## Recovery and public exit
-
-The real client must bind notes to chain ID, pool, circuit version, and derivation version. A robust deterministic recovery design also needs to recover partial-withdrawal change secrets, counters and derivation paths. Do not assume that every wallet will reproduce an identical EIP-712 signature. Decide whether explicit seed backup or a documented wallet-specific scheme is authoritative.
-
-Ragequit proves ownership of a specific commitment, checks the original depositor for its label, spends its nullifier, and returns the full amount to the original address. It must not depend on ASP availability or approval. Its public link should be shown clearly.
-
-## AQUA0 boundary
-
-The repository's adapter always refuses execution. Before enabling a route, validate the exact deployment and SDK with the AQUA0 team, including wstETH support, approved source and destination chains, custody/approval needs, quote validity, fees, minimum received, and settlement finality.
-
-Distinguish liquidity access from privacy. Public route parameters, amounts, timing and bridge messages may link exits. For asynchronous settlement, define escrow, timeout, refund address, and the point of irreversible nullifier consumption. Never mark a shielded withdrawal complete because a cross-chain message was merely submitted.
-
-No arbitrary user-provided adapter, infinite token approval, live private key, or unchecked execution route belongs in the browser demo.
+The browser worker creates and locally verifies proofs before wallet submission. Build checks artifact hashes. Hosting-origin integrity remains essential. Vercel uses a restrictive CSP, no telemetry and no remote scripts. Wallet RPC provides chain access and can observe public metadata.

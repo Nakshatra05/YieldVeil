@@ -1,6 +1,42 @@
 {
-  "name": "yieldveil", "version": "0.1.0", "private": true, "type": "module",
-  "scripts": { "dev": "vite --host 127.0.0.1", "build": "tsc -b && vite build", "preview": "vite preview --host 127.0.0.1", "test": "vitest run", "test:watch": "vitest" },
-  "dependencies": { "react": "^19.2.0", "react-dom": "^19.2.0", "lucide-react": "^0.468.0", "poseidon-lite": "^0.3.0" },
-  "devDependencies": { "@types/react": "^19.2.0", "@types/react-dom": "^19.2.0", "@vitejs/plugin-react": "^5.0.0", "typescript": "~5.9.3", "vite": "^7.1.0", "vitest": "^3.2.0" }
+  "name": "yieldveil",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "node scripts/check-artifacts.mjs && tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "zk:build": "node scripts/build-zk.mjs --local-test-setup",
+    "contracts:build": "node scripts/compile-contracts.mjs",
+    "test:protocol": "node scripts/test-protocol.mjs"
+  },
+  "dependencies": {
+    "ethers": "^6.17.0",
+    "lucide-react": "^0.468.0",
+    "poseidon-lite": "^0.3.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "snarkjs": "^0.7.6"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/snarkjs": "^0.7.9",
+    "@vitejs/plugin-react": "^5.0.0",
+    "circom2": "^0.2.23",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "ganache": "^7.9.2",
+    "solc": "^0.8.30",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.0"
+  },
+  "overrides": {
+    "underscore": "1.13.8"
+  }
 }

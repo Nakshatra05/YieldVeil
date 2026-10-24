@@ -1,92 +1,75 @@
 # Yieldveil
 
-**Privacy that pays.** A yield-bearing privacy-pool concept by **Naksh** ([@Naksh005](https://x.com/Naksh005)), built as an independent AQUA0 residency prototype.
+**Stay private. Keep growing.** Built by **Naksh** ([@Naksh005](https://x.com/Naksh005)).
 
-Neobrutalist React + TypeScript application, with lavender panels, acid-green accents, bold borders, and responsive layouts.
+[Website](https://yieldveil.vercel.app) · [Vault](https://yieldveil.vercel.app/app?network=testnet) · [Deploy](https://yieldveil.vercel.app/app?network=testnet#deployment)
 
-> **Current release: browser-only interactive prototype.** No real deposits, staking, zero-knowledge proofs, relaying, sanctions screening, or cross-chain settlement occur. Do not send funds to this project. The app does not request transaction signatures and contains no deployed custody address. A Poseidon commitment is not a ZK proof and does not make browser-local activity private onchain.
+A neobrutalist landing page and wallet-connected privacy vault with immutable wstETH custody, Circom membership/ownership proofs, a generated Groth16 Solidity verifier, and browser proving. Deposits and withdrawals require actual wallet transactions and confirmed receipts. No simulated balances or transaction-success fallback.
 
-## Run locally
+## Release status
 
-Use Node.js 22.12+ or 24 and npm.
+**Hoodi implementation; public deployment pending.** `public/deployments.json` remains empty until an operator signs the three contract deployments and publishes the downloaded manifest. Mainnet is closed and the pool constructor rejects chain 1.
+
+Contracts and circuits are unaudited. The bundled proving key uses a local single-contributor trusted setup for testnet testing only. Do not use assets with financial value. Production requires independent review and a public multi-party ceremony.
+
+## Features
+
+- ETH staking/wrapping through canonical Lido Hoodi wstETH; deposits credit the actual token balance delta.
+- Direct wstETH deposits with exact-amount approval.
+- Depth-16 Poseidon tree, actual browser Groth16 proving, Solidity verification and single-use nullifiers.
+- Full-note withdrawals in wstETH, bound to chain, pool, recipient, fee and deadline.
+- Explicit public exit to the original depositor using the same ownership proof/nullifier.
+- AES-256-GCM encrypted notes, PBKDF2 passphrases, backup restoration, receipt recovery and spent-status reconciliation.
+- Resumable wallet-driven deployment with runtime-bytecode validation.
+- Hoodi/mainnet views, real wallet balances and onchain stETH-per-wstETH rate. Missing data stays unavailable.
+
+No partial withdrawal, ETH redemption, hosted relayer, association-set provider, cross-chain exit or guaranteed anonymity. Amounts, timing, small pools and funding paths can link deposits to exits. Private-exit submission requires a separately funded wallet in the UI; this alone does not ensure anonymity.
+
+## Run and verify
+
+Node.js 24 and npm:
 
 ```sh
 npm ci
-npm run dev
 npm test
+npm run contracts:build
+npm run test:protocol
 npm run build
-npm run preview
+npm run dev
 ```
 
-`vercel.json` configures the Vite build, static output, and security headers. No environment variables or private keys are needed. The production bundle makes no API calls; optional wallet connection only requests the public account list.
+The protocol test deploys the real pool, Poseidon and verifier on an in-memory EVM. Only Lido is replaced with a test token adapter. It generates real proofs and checks conversion, membership, exits, tampered context/signals, replay rejection, caps, ownership, bytecode and conservation. No private key or RPC is needed. Ganache may print a harmless optional native-module fallback warning on newer Node versions.
 
-## Try the demo
+CI recompiles and compares artifacts, runs unit and EVM/proof tests, then builds. Build verifies proving artifact SHA-256 checksums.
 
-1. Create a demo vault using a passphrase of at least 12 characters.
-2. Simulate an ETH or wstETH deposit. ETH is converted at the explicitly illustrative rate of 1.20 ETH per wstETH.
-3. Switch to Withdraw. Choose a note and enter a fresh-shaped recipient address (e.g. `0x2222222222222222222222222222222222222222`). No transfer will occur.
-4. Partial withdrawal consumes the old note and creates a new change note. The gross withdrawal includes the illustrative 0.0005 wstETH relayer fee.
-5. Inspect encrypted local activity and note inventory. Explore public exit in Settings.
-6. Export an encrypted backup. Reload, unlock, or restore the backup with its passphrase.
+## Deploy to Hoodi
 
-All demo deposits use `0x1111111111111111111111111111111111111111` as the original depositor, regardless of any display-only wallet connection. Withdrawing privately to that address is blocked. Public exit returns the full simulated note there.
+1. Use an Ethereum browser wallet funded with **Hoodi test ETH** for deployment gas. No mainnet ETH is needed. Never share a seed phrase or private key.
+2. Open the deployment console, connect, and switch to Hoodi (chain ID 560048).
+3. Choose **Deploy testnet contracts** and review/sign Poseidon, verifier and pool deployments. Retry after an interruption to resume from saved transaction hashes.
+4. Save `yieldveil-deployments.json`. It contains public addresses only. Replace `public/deployments.json` with its contents, commit and push to activate the pool for everyone.
+5. Verify the addresses on Hoodi Etherscan and complete a small deposit, backup restore and withdrawal on Hoodi before inviting users. Local EVM tests do not replace this network check.
 
-## What is implemented
+Canonical asset: `0x7E99eE3C66636DE415D2d7C880938F2f40f94De4`; verify with [Lido deployments](https://docs.lido.fi/deployed-contracts/hoodi/). Caps: 0.1 ETH/wstETH per deposit, 10 wstETH outstanding liabilities, 65,536 lifetime commitments.
 
-- ETH/wstETH deposit and partial/full withdrawal state machines.
-- 18-decimal `bigint` accounting, downward share conversion, explicit fee accounting.
-- Poseidon note commitments and nullifier hashes over the BN254 field; rejection-sampled random secrets.
-- Fresh nullifier/secret pairs for change notes; stable deposit label.
-- AES-256-GCM encrypted browser storage and JSON backups; PBKDF2-SHA256, 310,000 iterations, fresh 128-bit salts, 96-bit IVs.
-- Schema/integrity validation on backup import; no plaintext persistence of notes or passphrase.
-- Cross-tab stale-write protection using Web Locks and ciphertext comparison; inactivity locking after ten minutes.
-- A Web Worker that checks note integrity. **It does not produce a proof.**
-- Yield projection controls, local history, ragequit simulation, keyboard-accessible dialogs and responsive UI.
-- AQUA0 adapter capability boundary that always reports unsupported; unavailable routes cannot execute.
-- Proposed Solidity interfaces and a nonpayable, always-reverting adapter placeholder, clearly separate from the app.
+## Notes and recovery
 
-## What remains before testnet
+Keep the encrypted backup **before** confirming a deposit and the updated backup afterward. Keep its passphrase separately. Wallet keys cannot recreate note secrets. Restore through Notes and refresh onchain status. A pre-deposit backup can recover its amount/index from a confirmed deposit receipt. Replacement transactions may require manually entering the confirmed hash. Imports merge missing note IDs under the existing vault passphrase and preserve existing notes.
 
-The supplied HLD describes a multi-phase protocol, not just a frontend. This release does **not** implement its custody pool, Entrypoint, Lido staking adapter, verifiers/circuits, Merkle indexer, ASP, or relayer. See [the implementation plan](docs/IMPLEMENTATION.md) and [protocol integration contract](docs/PROTOCOL.md).
+Clearing browser storage without a backup and passphrase loses access. Origin scripts and browser extensions remain part of the client trust boundary. No application server receives note secrets; wallet RPC can observe public metadata and queries.
 
-No real APR or exchange-rate feed is connected. The graph is a simple non-compounded projection with a configurable illustrative APR (default 3%). For an empty vault it illustrates 1 ETH. No earned yield is fabricated. Actual stETH redemption value, ETH market value, and DEX proceeds can differ.
+## Circuit rebuild
 
-## Privacy and recovery boundaries
-
-- Passphrase protection protects stored ciphertext, not an unlocked browser or malicious frontend code. XSS, extensions, compromised dependencies, and weak passphrases remain risks.
-- Wallet connection is optional and for display only. It is not authentication and does not derive note keys.
-- Wallet-signature recovery from the HLD is **not implemented**. Passphrase + encrypted backup are required to move this demo vault to another device; lost passphrases cannot be reset.
-- The association set is simulated as approved. There is no actual screening or anonymity set.
-- Reload locks the vault. Closing the page does not erase the encrypted copy. Browser storage clearing can remove it; export a backup.
-- Restoring replaces local demo state. Historical backups can resurrect spent *demo* notes; a real client must reconcile them with onchain nullifiers. The browser is not a double-spend authority.
-- Local nullifier checks prevent repeated spending within the current state, not adversarial state rollback.
-- HTTP hosting still exposes request metadata to the host. No analytics SDK, remote font request, or app telemetry is included.
-
-## Repository map
-
-```text
-src/App.tsx                       Vault, activity, settings, protocol explanation
-src/styles.css                    Responsive neobrutalist design system
-src/lib/protocol.ts                Exact accounting and local note state transitions
-src/lib/vault.ts                   Encryption, decryption, backups
-src/lib/aqua.ts                    Explicit unsupported-route boundary
-src/lib/protocol.test.ts           Accounting, lifecycle, encryption, adapter tests
-src/workers/witness.worker.ts      Local integrity check (not a ZK prover)
-contracts/interfaces/             Proposed protocol and exit adapter ABI
-contracts/AquaExitAdapterUnavailable.sol  Fail-closed integration placeholder
-docs/                             Architecture, API design, testnet implementation plan
+```sh
+npm run zk:build
+npm run contracts:build
+npm run test:protocol
 ```
 
-## Verification
+The test-only setup takes time and changes the proving key/verifier. **Old pools are incompatible with a new key. Preserve old proving artifacts for old notes.** This is not a production ceremony workflow.
 
-`npm test` covers exact wei parsing, malformed input, share rounding, value conservation, change-note freshness, duplicate spending, full exits, rejected-note ragequit, recipient validation, backup integrity, wrong passphrases, ciphertext tampering, and unsupported routes. `npm run build` type-checks and produces the production bundle.
+## Source and licenses
 
-Browser QA also exercises vault creation, unlock, simulated deposit, recipient rejection, partial withdrawal, and route gating. These checks validate the demo, not a production cryptographic protocol.
+`src/Landing.tsx`: landing · `src/VaultApp.tsx`: app · `src/lib/chain.ts`: chain/tree · `src/lib/notes.ts`: encryption · `src/lib/deployment.ts`: bytecode checks · `src/workers/prover.worker.ts`: proving · `circuits/withdraw.circom`: circuit · `contracts/`: custody/verifier · `public/zk/`: proving artifacts.
 
-## Technical references
-
-- [Lido wstETH contract documentation](https://docs.lido.fi/contracts/wsteth/): fixed share accounting and staking/wrapping integration.
-- [0xbow Privacy Pools core](https://github.com/0xbow-io/privacy-pools-core): potential circuit/protocol reference. No source has been copied or license assumed compatible; perform a version-specific license and audit review before reuse.
-- [Aqua0 project documentation](https://github.com/jackmielke/Aqua0/blob/main/DOCUMENTATION_INDEX.md) and [Aqua0 shared-liquidity implementation](https://github.com/Aqua0-fi/Pitchday): research references with different integration assumptions; not evidence that Yieldveil routes or wstETH are supported.
-
-The supplied `Yieldveil_HLD.pdf` informed the design. This repository follows the user's requested branding and credits Naksh; the PDF is not redistributed.
+[Protocol](docs/PROTOCOL.md) · [Implementation status](docs/IMPLEMENTATION.md) · [Third-party notices](THIRD_PARTY_NOTICES.md). The app includes GPL-3.0 snarkjs and is distributed with corresponding source/build scripts under GPL-3.0. Separately marked Solidity files retain their SPDX licenses.
