@@ -1,7 +1,9 @@
 import solc from 'solc';
 import {poseidonContract} from 'circomlibjs';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
-const sources={};for(const file of ['YieldveilUsdcPool.sol','WithdrawalVerifier.sol'])sources[file]={content:await readFile('contracts/'+file,'utf8')};
+// Preserve the exact source bytes used for the immutable Base deployment on
+// every checkout platform. Solidity includes source hashes in runtime metadata.
+const sources={};for(const file of ['YieldveilUsdcPool.sol','WithdrawalVerifier.sol']){const text=(await readFile('contracts/'+file,'utf8')).replace(/\r\n/g,'\n');sources[file]={content:file==='YieldveilUsdcPool.sol'?text.replace(/\n/g,'\r\n'):text};}
 const output=JSON.parse(solc.compile(JSON.stringify({language:'Solidity',sources,settings:{optimizer:{enabled:true,runs:200},evmVersion:'shanghai',outputSelection:{'*':{'*':['abi','evm.bytecode.object','evm.deployedBytecode.object','evm.deployedBytecode.immutableReferences']}}}})));
 for(const e of output.errors??[])if(e.severity==='error')throw new Error(e.formattedMessage);
 const pick=(file,name)=>{const c=output.contracts[file][name];return {abi:c.abi,bytecode:'0x'+c.evm.bytecode.object,runtime:'0x'+c.evm.deployedBytecode.object,immutables:Object.values(c.evm.deployedBytecode.immutableReferences??{}).flat()};};
