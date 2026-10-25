@@ -1,0 +1,24 @@
+{
+  "chainId": 84532,
+  "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "deployment": {
+    "poseidon": "0x19e363375f3f69EFb3a2120a11B06e4B9E0F21b3",
+    "poseidonTx": "0x2d055cc7624581440a753f217a7943540dae16e0fc966b47c56d5b891de30292",
+    "verifier": "0xbB90BD31805171908171c3BAc161fc9021C74A1E",
+    "verifierTx": "0x6f9172674bd4ed27d7cef839e25f252b14421be5817fb0c263c119b4d923bbef",
+    "pool": "0xdbC0e6029727A3DdaA13c675B99F24353f01bAa4",
+    "poolTx": "0x417b552e6d6f584c0acea226061272f2e2c675a1ef0aa4098c686d31717d6a6f",
+    "block": 49902319
+  },
+  "relayerFunding": "0x0c235aa848f7d97a2ab9c805f9f1531650ae0a7b74e063e8ba55b25308a856d0",
+  "deposit": "0x7a3a7bc02623e5eaee8aab94fa9281d90029197930c0ba09ef56660294bbacc9",
+  "withdrawal": "0x569df0bed318d60eca2b909d9394f396236387716dba89a6d966fd4227ceb634",
+  "depositUnits": "100000",
+  "recipientUnits": "90000",
+  "relayFeeUnits": "10000",
+  "recipient": "0x8EE8729a860C6B436f69d3E08BB487F62b28aEcC",
+  "recipientETH": "0",
+  "liabilities": "0",
+  "runtimeVerified": true,
+  "backupRecovery": "Restored pre-deposit backup without transaction hash on a fresh browser origin; found commitment and spent it with a browser-generated Groth16 proof."
+}
