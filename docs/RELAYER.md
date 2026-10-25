@@ -2,6 +2,14 @@
 
 The shared immutable pool and proving artifacts are unchanged. Mainnet remains disabled.
 
+## Verified deployment
+
+Relay address: `0x0fd8177D2eE3Dd7C87E7B2AA22A6137919Ec7284`, initially funded with 0.03 Hoodi ETH. Production API: `https://yieldveil.vercel.app/api/relay`.
+
+The compiled browser generated and locally verified the proof, then submitted it to the production Vercel API through a localhost QA proxy. The QA wallet exposed only read RPC methods; it could not sign transactions. Hoodi confirmed [withdrawal 0x05de…3d17](https://hoodi.etherscan.io/tx/0x05de16de0ed4bafcb6a138aa814cc6b5af088a7ae5b65e676430210e39623d17). The recipient held zero ETH before and immediately after receipt. It received 0.004071827965416480 wstETH; the relayer received the disclosed 0.000766370662692456 wstETH fee. The pool's liabilities and token balance returned to zero.
+
+Production retry returned the original transaction hash; a new quote for the spent note was rejected. Browser checks covered backup decryption, confirmation gating, guided restoration, historical rate display and stale-backup reconciliation. The funding and later cleanup transfers are publicly linked test operations, not evidence of anonymity. Machine-readable receipts and checks: [hoodi-relay-verification.json](hoodi-relay-verification.json).
+
 ## User flow
 
 Connect a Hoodi browser wallet, unlock notes, select Withdraw, and enter a fresh recipient. Get a quote, review its exact wstETH fee and net proceeds, then accept. The browser proves locally; `/api/relay` receives only the proof, public signals and signed quote. The recipient requires no ETH. A connected deposit wallet may be used to read RPC data; it does not submit or sign the private withdrawal. Public exits remain available and explicitly link ownership.

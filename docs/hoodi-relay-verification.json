@@ -1,0 +1,31 @@
+{
+  "chainId": 560048,
+  "commit": "6a1c1e13d8df5096e322db5c8a0d6771803e74dd",
+  "pool": "0x92369A8527557955e6A81e98c090D2d3dB043758",
+  "relayer": "0x0fd8177D2eE3Dd7C87E7B2AA22A6137919Ec7284",
+  "recipient": "0x07E3B5dD3F4527262181050148c927112eae8589",
+  "deposit": "0x802bace6b6efe523149272145c3058dc7a74418d3196497315e4389f04ff77aa",
+  "withdrawal": "0x05de16de0ed4bafcb6a138aa814cc6b5af088a7ae5b65e676430210e39623d17",
+  "funding": "0xa1d581c69e0b879f6037ae64fa1326b1e61f7b9196eafe6b01443bd1030dc417",
+  "depositBlock": 3882156,
+  "depositRate": "1033442482280704819",
+  "shares": "4838198628108936",
+  "fee": "766370662692456",
+  "recipientWstETH": "4071827965416480",
+  "recipientETH": "0",
+  "gasUsed": "354169",
+  "status": 1,
+  "retrySameHash": true,
+  "replayQuoteRejected": true,
+  "poolLiabilities": "0",
+  "poolTokenBalance": "0",
+  "browserProof": true,
+  "browserRecovery": true,
+  "backupVerificationGate": true,
+  "staleBackupSpentStatus": true,
+  "cleanup": {
+    "funding": "0x3dbb4c0a962e09ccacde3bf19a4af1c26661e75a484902a7edd7ff4ff7e279ec",
+    "returnWstETH": "0x32cbd290adb0f949a13fc36cdb09a308e891aaac02c245dd155e66e98c127cd6",
+    "returnETH": "0xff45901270bf91a18c09c021d8b7e691f0fcb51e90961c142b7762a35ebd9a46"
+  }
+}
