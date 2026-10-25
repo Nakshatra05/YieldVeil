@@ -1,0 +1,45 @@
+{
+  "chainId": 560048,
+  "config": {
+    "factory": "0x19e363375f3f69EFb3a2120a11B06e4B9E0F21b3",
+    "reserve": "0xD73d848287841875BaBDC7f7715d4908bF90c16c",
+    "implementation": "0xF92f1bA89CA538EAD172a4f70FA9784eC37943F6",
+    "block": 3882483
+  },
+  "deposit": "0xc4bf37140ef9860fbcc1c9d66931be03f5783b2d700bbabaa505ebedd08650c9",
+  "partialETH": "0xceb8c86f690050f068e94a25581ba98cdf84c3686730a66f09b3016598cfe9c2",
+  "originalShares": "29029191768653619",
+  "remainingShares": "14029191768653619",
+  "gasUsed": "1265045",
+  "recipient": "0x36900B83DAEB87FD643fA36Bcb672F5616147d29",
+  "recipientETH": "13014476322507939",
+  "originalNoteSpent": true,
+  "changeNoteSpent": false,
+  "originalBasisBlock": 3882487,
+  "changeBasisBlock": 3882487,
+  "reserveFunding": "0xbff45cc70d1a6b5c01c051cd79e95eae0992e6969413e9218d9eac31aa2fa788",
+  "poolLiabilities": "14029191768653619",
+  "secondPartialWstETH": {
+    "transaction": "0x522f4fa096ed9fc0eeb5820af1b548b4e282c062324a89dee68ec97700435781",
+    "gasUsed": "1180482",
+    "grossShares": "8000000000000000",
+    "recipientShares": "5631217951677864",
+    "remainingShares": "6029191768653619",
+    "basisBlock": 3882487
+  },
+  "directRemainderExit": {
+    "transaction": "0x8c6c7e0066a1280b871040faf8b903e95153b47af9b26c0559432556eecf29a9",
+    "status": 1,
+    "gasUsed": "317216"
+  },
+  "finalPoolLiabilities": "0",
+  "changeNotesSpent": [
+    true,
+    true
+  ],
+  "qaReturns": {
+    "wstETH": "0x88dfa7ae207ac12b1d86c27a38995ceb3aa6d25b963123e792a17482c0a421fe",
+    "ETH": "0x793b6bd9628045bc8d2be6be654059b42f70723dff82271ac8fc42affbc8c5c0"
+  },
+  "backupRecovery": "Fresh browser origin restored pre-withdrawal encrypted backup; discovered change commitment without transaction hash."
+}

@@ -35,3 +35,5 @@ Circle does not list USDC on Ethereum Hoodi in its [official address registry](h
 ## Verification
 
 `npm run contracts:build` independently rebuilds legacy and route artifacts. CI compares both to committed outputs. The EVM test generates actual Groth16 proofs and tests partial ETH payout, CREATE2 recipient/change/asset binding, slippage rollback, replay rejection, share conservation and subsequent permissionless withdrawal of the change note. Browser and Hoodi integration receipts are recorded separately after deployment verification.
+
+The live Hoodi check deposited 0.03 ETH using the existing note format, withdrew 0.015 wstETH of gross shares into ETH, then restored the pre-withdrawal backup on a fresh browser origin. Recovery found the change commitment without a saved transaction hash. A second partial withdrawal of 0.008 gross wstETH used the production Vercel API. Both change notes retained the original deposit block for yield accounting. The final remainder was withdrawn with a self-submitted proof. Public transaction receipts and balances are in `hoodi-atomic-verification.json`; no note secrets are published.
