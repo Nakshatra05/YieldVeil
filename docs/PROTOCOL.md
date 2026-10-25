@@ -16,7 +16,7 @@ Private witness: nullifier, secret, 16 siblings and boolean path indices. Public
 
 Context is keccak256(abi.encode(chainId, pool, recipient, relayer, fee, deadline)) modulo the BN254 scalar field. Authorization is Poseidon2(nullifier, context), binding context inside the circuit. The circuit constrains the same value/secrets to a tree leaf, value to 128 bits, and mode/path indices to booleans. Withdrawals consume the whole note, without change outputs.
 
-The pool checks context, root, nullifier, amount, recipient, deadline and Groth16 proof. Effects precede transfers; all mutating functions are reentrancy-guarded. Nonzero fees require the named relayer to submit. The UI uses zero fees and has no hosted relayer.
+The pool checks context, root, nullifier, amount, recipient, deadline and Groth16 proof. Effects precede transfers; all mutating functions are reentrancy-guarded. Nonzero fees require the named relayer to submit. Private UI exits use signed fee quotes from the hosted Hoodi relayer; public exits retain zero fees.
 
 Mode 0 exposes no commitment. Mode 1 exposes the commitment and requires its original depositor as both sender and recipient, with zero fee. Both modes require a valid proof and consume the same nullifier. Public exit cannot bypass lost artifacts or unavailable proving.
 
@@ -24,7 +24,7 @@ Mode 0 exposes no commitment. Mode 1 exposes the commitment and requires its ori
 
 Only chains 560048 and local 31337 are accepted. Caps: 0.1 ETH/wstETH deposit, 10 wstETH outstanding liabilities, 65,536 lifetime leaves. No pause or upgrade exists. The single-contributor setup, contract and circuit are unaudited and only for testnet.
 
-Amounts, deposit accounts and timing are public. Unique amounts and gas funding can link exits. UI sender checks do not guarantee anonymity. No association-set provider, screening claim, relayer or cross-chain guarantee is included.
+Amounts, deposit accounts and timing are public. Unique amounts and gas funding can link exits. UI sender checks do not guarantee anonymity. No association-set provider, screening claim or cross-chain guarantee is included.
 
 ## Client integrity
 

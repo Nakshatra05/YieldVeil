@@ -48,7 +48,7 @@ assert.equal(await pool.root(),BigInt(path(1).root));
 assert.equal(await pool.liabilities(),value+shares);
 assert.deepEqual(Array.from(await pool.getLeaves(0,256)),leaves);
 const deadline=(await provider.getBlock('latest')).timestamp+3600;
-const exit={recipient:recipientAddress,relayer:ZeroAddress,fee:0,deadline};
+const exit={recipient:recipientAddress,relayer:await submitter.getAddress(),fee:12345n,deadline};
 const input={...path(0),nullifierHash:hash(123n,0n).toString(),value:value.toString(),context:(await pool.contextHash(exit)).toString(),mode:0,exposedCommitment:'0',nullifier:'123',secret:'456'};
 await mkdir('work/zk',{recursive:true});await writeFile('work/zk/browser-witness.json',JSON.stringify(input));
 async function prove(witness){const result=await groth16.fullProve(witness,'public/zk/withdraw.wasm','public/zk/withdraw.zkey',undefined,undefined,{singleThread:true});assert(await groth16.verify(JSON.parse(await readFile('public/zk/verification_key.json','utf8')),result.publicSignals,result.proof));return JSON.parse('['+await groth16.exportSolidityCallData(result.proof,result.publicSignals)+']');}
@@ -59,12 +59,14 @@ await assert.rejects(pool.withdraw.staticCall(...proof,{...exit,recipient:ownerA
 await assert.rejects(pool.withdraw.staticCall(...proof,{...exit,deadline:deadline+1}),'deadline binding');
 await assert.rejects(pool.withdraw.staticCall(...proof,{...exit,fee:1}),'fee binding');
 for(const signal of [0,1,2,3,4,5,6]){const mutated=structuredClone(proof);mutated[3][signal]=(BigInt(mutated[3][signal])+1n).toString();await assert.rejects(pool.withdraw.staticCall(...mutated,exit),`public signal ${signal} binding`);}
+await assert.rejects(pool.withdraw.staticCall(...proof,exit),'designated relayer restriction');
 await(await pool.connect(submitter).withdraw(...proof,exit)).wait();
-assert.equal(await token.balanceOf(recipientAddress),value);
+assert.equal(await token.balanceOf(recipientAddress),value-exit.fee);
+assert.equal(await token.balanceOf(await submitter.getAddress()),exit.fee);
 assert.equal(await pool.spent(hash(123n,0n)),true);
 await assert.rejects(pool.withdraw.staticCall(...proof,exit),'double spend');
 console.log('Private withdrawal, recipient/context/proof tampering, and double-spend rejection passed. Generating public-exit proof…');
-const publicExit={...exit,recipient:ownerAddress};
+const publicExit={...exit,recipient:ownerAddress,relayer:ZeroAddress,fee:0};
 const publicProof=await prove({...path(1),nullifierHash:hash(789n,0n).toString(),value:shares.toString(),context:(await pool.contextHash(publicExit)).toString(),mode:1,exposedCommitment:leaves[1].toString(),nullifier:'789',secret:'999'});
 await assert.rejects(pool.connect(submitter).withdraw.staticCall(...publicProof,publicExit),'public exit owner restriction');
 await(await pool.withdraw(...publicProof,publicExit)).wait();

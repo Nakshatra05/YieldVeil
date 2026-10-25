@@ -1,0 +1,8 @@
+import {describe,it,expect} from 'vitest';
+import {signQuote,validQuote,validateProof,validateRequest,context,CHAIN,POOL,GAS_PRICE,GAS_LIMIT} from './relay-core.mjs';
+const quote={chainId:CHAIN,pool:POOL,recipient:'0x1111111111111111111111111111111111111111',relayer:'0x2222222222222222222222222222222222222222',nullifierHash:'123',value:'1000000000000000',fee:'100',deadline:123456789,nonce:5,gasPrice:GAS_PRICE.toString(),gasLimit:GAS_LIMIT.toString()};
+describe('relayer authorization boundary',()=>{
+ it('authenticates every quote field including nonce and gas price',()=>{const signed={...quote,signature:signQuote(quote,'test-secret')};expect(validQuote(signed,'test-secret')).toBe(true);for(const field of Object.keys(quote)){expect(validQuote({...signed,[field]:String(quote[field])+'1'},'test-secret')).toBe(false);}expect(validQuote(signed,'wrong')).toBe(false);});
+ it('rejects public exits, other notes, fees and recipients before RPC calls',()=>{const proof=[['1','2'],[['3','4'],['5','6']],['7','8'],['1','2',quote.nullifierHash,quote.value,context(quote).toString(),'0','0']];expect(()=>validateProof(proof,quote)).not.toThrow();for(const index of [2,3,4,5,6]){const changed=structuredClone(proof);changed[3][index]=(BigInt(changed[3][index])+1n).toString();expect(()=>validateProof(changed,quote)).toThrow();}expect(()=>validateProof([[],[],[],[]],quote)).toThrow();});
+ it('rejects malformed and oversized note requests',()=>{expect(()=>validateRequest(quote)).not.toThrow();expect(()=>validateRequest({...quote,value:'100000000000000001'})).toThrow();expect(()=>validateRequest({...quote,recipient:'0x0000000000000000000000000000000000000000'})).toThrow();expect(()=>validateRequest({...quote,nullifierHash:'-1'})).toThrow();});
+});

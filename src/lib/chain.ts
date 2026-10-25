@@ -17,7 +17,7 @@ export const POOL_ABI = [
  'event Deposited(address indexed account,uint256 indexed commitment,uint256 value,uint256 leafIndex,uint256 precommitment)',
  'event Withdrawn(uint256 indexed nullifierHash,address indexed recipient,uint256 value,uint256 fee,uint256 mode)',
 ];
-export type ChainNote = { id:string; chainId:560048; pool:string; depositor:string; nullifier:string; secret:string; precommitment:string; commitment?:string; value?:string; index?:number; txHash?:string; status:'pending'|'active'|'spent'; createdAt:number };
+export type ChainNote = { id:string; chainId:560048; pool:string; depositor:string; nullifier:string; secret:string; precommitment:string; commitment?:string; value?:string; index?:number; txHash?:string; withdrawalTx?:string; depositBlock?:number; depositRate?:string; depositTimestamp?:number; status:'pending'|'active'|'spent'; createdAt:number };
 export const hash2 = (a:bigint|string,b:bigint|string) => poseidon2([BigInt(a),BigInt(b)]);
 function secretField():string { let n:bigint; do { n=BigInt('0x'+Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('')); } while(n===0n||n>=FIELD); return n.toString(); }
 export function newNote(pool:string,depositor:string):ChainNote { const nullifier=secretField(), secret=secretField(); return {id:crypto.randomUUID(),chainId:560048,pool,depositor,nullifier,secret,precommitment:hash2(nullifier,secret).toString(),status:'pending',createdAt:Date.now()}; }
@@ -28,7 +28,7 @@ export function merklePath(leaves:bigint[],index:number) {
   return {root:(level[0]??zero).toString(),siblings,pathIndices};
 }
 export async function allLeaves(pool:Contract):Promise<bigint[]> { const count=Number(await pool.leafCount()); if(count>65536) throw new Error('Unsupported tree size.'); const leaves:bigint[]=[]; for(let from=0;from<count;from+=256) leaves.push(...await pool.getLeaves(from,Math.min(256,count-from))); return leaves; }
-export function exitContext(chainId:number,pool:string,recipient:string,deadline:number) { return BigInt(keccak256(AbiCoder.defaultAbiCoder().encode(['uint256','address','address','address','uint256','uint256'],[chainId,pool,recipient,ZeroAddress,0,deadline])))%FIELD; }
+export function exitContext(chainId:number,pool:string,recipient:string,deadline:number,relayer=ZeroAddress,fee:bigint=0n) { return BigInt(keccak256(AbiCoder.defaultAbiCoder().encode(['uint256','address','address','address','uint256','uint256'],[chainId,pool,recipient,relayer,fee,deadline])))%FIELD; }
 export async function chainConnection(expected:Environment) {
   const injected=walletProvider(); if(!injected) throw new Error('Open Yieldveil in a browser with an Ethereum wallet installed.');
   const id=Number(BigInt(await injected.request({method:'eth_chainId'}) as string));

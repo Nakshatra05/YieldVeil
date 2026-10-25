@@ -4,7 +4,7 @@
 
 [Website](https://yieldveil.vercel.app) · [Vault](https://yieldveil.vercel.app/app?network=testnet) · [Deploy](https://yieldveil.vercel.app/app?network=testnet#deployment)
 
-A neobrutalist landing page and wallet-connected privacy vault with immutable wstETH custody, Circom membership/ownership proofs, a generated Groth16 Solidity verifier, and browser proving. Deposits and withdrawals require actual wallet transactions and confirmed receipts. No simulated balances or transaction-success fallback.
+A neobrutalist landing page and wallet-connected privacy vault with immutable wstETH custody, Circom membership/ownership proofs, a generated Groth16 Solidity verifier, and browser proving. Deposits require wallet transactions; private withdrawals use a funded Hoodi relayer and confirmed receipts. No simulated balances or transaction-success fallback.
 
 ## Release status
 
@@ -23,7 +23,9 @@ Contracts and circuits are unaudited. The bundled proving key uses a local singl
 - Resumable wallet-driven deployment with runtime-bytecode validation.
 - Hoodi/mainnet views, real wallet balances and onchain stETH-per-wstETH rate. Missing data stays unavailable.
 
-No partial withdrawal, ETH redemption, hosted relayer, association-set provider, cross-chain exit or guaranteed anonymity. Amounts, timing, small pools and funding paths can link deposits to exits. Private-exit submission requires a separately funded wallet in the UI; this alone does not ensure anonymity.
+Hoodi relayed withdrawals quote a wstETH fee before local proof generation. The recipient needs no gas. Actual staking growth uses historical deposit-block rates. Guided recovery merges encrypted backups, reconciles receipts/nullifiers, and downloads a fresh backup. Deposits require successfully reopening the downloaded backup.
+
+No partial withdrawal, ETH redemption, association-set provider, cross-chain exit or guaranteed anonymity. Amounts, timing, small pools, RPC queries and relayer request metadata can link activity. See docs/RELAYER.md for operating limits.
 
 ## Run and verify
 
