@@ -1,1 +1,9 @@
-{"testnet":null,"mainnet":null}
+{
+  "testnet": {
+    "pool": "0x92369A8527557955e6A81e98c090D2d3dB043758",
+    "verifier": "0x37068dB6bf8628ECBD685608d616E2026291B63c",
+    "poseidon": "0x38922F3aA335a392f66ab01292db369564C007Fa",
+    "block": 3882096
+  },
+  "mainnet": null
+}

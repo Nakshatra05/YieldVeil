@@ -4,9 +4,9 @@ The supplied HLD describes a broader system. This release implements a narrower,
 
 Implemented: landing and vault UI, EIP-1193 wallets, ETH/wstETH deposits, immutable custody, Poseidon tree, Circom/Groth16 proofs, private and public full-note exits, encrypted backups, receipt recovery, onchain state reconciliation and resumable deployment.
 
-Public Hoodi deployment remains pending wallet signatures and publication of its manifest. Mainnet is closed. Partial exits, ASP, hosted relayer and cross-chain liquidity are not implemented.
+The shared Hoodi deployment is published in public/deployments.json. All three runtime bytecodes and their dependencies match the release artifacts; see HOODI_DEPLOYMENT.md for addresses and confirmed test transactions. Mainnet is closed. Partial exits, ASP, hosted relayer and cross-chain liquidity are not implemented.
 
-Before public Hoodi use: deploy, publish manifest, inspect explorer addresses, and run small deposits, restored-backup withdrawals and replay checks against canonical Lido. For explorer verification use Solidity 0.8.38, optimizer 200 runs, Shanghai EVM target and exact constructor arguments.
+Hoodi integration checks passed for canonical Lido ETH conversion, direct wstETH deposits, encrypted-backup/receipt recovery, private/public withdrawals, single-use nullifiers and empty-pool conservation. These are functionality checks, not an anonymity guarantee or audit. For explorer verification use Solidity 0.8.38, optimizer 200 runs, Shanghai EVM target and exact constructor arguments.
 
 Before mainnet: independent contract/circuit/privacy review, multi-party setup, amount-correlation mitigation, relayer/indexer operations, association-set decisions, reorg/root-aging and concurrency testing, incident procedures and retention of every live pool's proving artifacts. A different network-ready contract is necessary; this one rejects mainnet.
 

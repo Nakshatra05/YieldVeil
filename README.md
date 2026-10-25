@@ -8,7 +8,7 @@ A neobrutalist landing page and wallet-connected privacy vault with immutable ws
 
 ## Release status
 
-**Hoodi implementation; public deployment pending.** `public/deployments.json` remains empty until an operator signs the three contract deployments and publishes the downloaded manifest. Mainnet is closed and the pool constructor rejects chain 1.
+**The shared Hoodi testnet pool is deployed.** Connect a Hoodi wallet in the vault to use the configured pool. You do not need to deploy your own contracts. ETH and wstETH deposits, both full-note withdrawal modes, encrypted note restoration and replay rejection have been tested against the deployed contracts. See [deployment addresses and test receipts](docs/HOODI_DEPLOYMENT.md). Mainnet is closed and the pool constructor rejects chain 1.
 
 Contracts and circuits are unaudited. The bundled proving key uses a local single-contributor trusted setup for testnet testing only. Do not use assets with financial value. Production requires independent review and a public multi-party ceremony.
 
@@ -42,7 +42,9 @@ The protocol test deploys the real pool, Poseidon and verifier on an in-memory E
 
 CI recompiles and compares artifacts, runs unit and EVM/proof tests, then builds. Build verifies proving artifact SHA-256 checksums.
 
-## Deploy to Hoodi
+## Deploy another Hoodi pool (developers)
+
+The shared public pool is already active. These instructions are only for a separate deployment; preserve the current pool and its proving artifacts for existing notes.
 
 1. Use an Ethereum browser wallet funded with **Hoodi test ETH** for deployment gas. No mainnet ETH is needed. Never share a seed phrase or private key.
 2. Open the deployment console, connect, and switch to Hoodi (chain ID 560048).
