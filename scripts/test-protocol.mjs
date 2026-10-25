@@ -11,6 +11,7 @@ const source=`pragma solidity ^0.8.24;
 contract TestWstETH {
  mapping(address=>uint) public balanceOf;
  mapping(address=>mapping(address=>uint)) public allowance;
+ uint public rate=12e17; function stEthPerToken() external view returns(uint){return rate;} function setRate(uint n) external {rate=n;}
  function mint(address to,uint n) external {balanceOf[to]+=n;}
  receive() external payable {balanceOf[msg.sender]+=msg.value*5/6;}
  function approve(address to,uint n) external returns(bool){allowance[msg.sender][to]=n;return true;}
@@ -73,6 +74,47 @@ await(await pool.withdraw(...publicProof,publicExit)).wait();
 assert.equal(await pool.liabilities(),0n);assert.equal(await token.balanceOf(await pool.getAddress()),0n);
 assert.equal(await pool.spent(hash(789n,0n)),true);
 console.log('Public exit ownership, nullifiers and exact token conservation passed. Full EVM + Groth16 flow verified.');
+
+const routes=JSON.parse(await readFile('public/contracts/routes.json','utf8'));
+const reserve=await deploy(routes.HoodiEthReserve,[await token.getAddress()]);
+const factory=await deploy(routes.ExitRouterFactory,[await pool.getAddress(),await token.getAddress(),await reserve.getAddress()]);
+await(await owner.sendTransaction({to:await reserve.getAddress(),value:parseEther('1')})).wait();
+const splitValue=parseEther('0.05'),splitPre=hash(4567n,8901n),changePre=hash(3456n,7890n);
+await(await token.mint(ownerAddress,splitValue)).wait();
+await(await token.approve(await pool.getAddress(),splitValue)).wait();
+await(await pool.depositWstETH(splitValue,splitPre)).wait();leaves.push(hash(splitValue,splitPre));
+const route={recipient:recipientAddress,relayer:await submitter.getAddress(),gross:parseEther('0.02'),fee:parseEther('0.001'),changePrecommitment:changePre,minimum:parseEther('0.022'),deadline:(await provider.getBlock('latest')).timestamp+3600,output:1};
+const splitNullifier=hash(4567n,0n),predicted=await factory.predict(splitNullifier,route);
+const routeExit={recipient:predicted,relayer:predicted,fee:route.fee,deadline:route.deadline};
+const splitInput={...path(2),nullifierHash:splitNullifier.toString(),value:splitValue.toString(),context:(await pool.contextHash(routeExit)).toString(),mode:0,exposedCommitment:'0',nullifier:'4567',secret:'8901'};
+console.log('Generating atomic partial ETH exit proof…');
+const splitProof=await prove(splitInput);
+await assert.rejects(factory.execute.staticCall(...splitProof,route),'route submitter binding');
+await assert.rejects(factory.connect(submitter).execute.staticCall(...splitProof,{...route,recipient:ownerAddress}),'route recipient binding');
+await assert.rejects(factory.connect(submitter).execute.staticCall(...splitProof,{...route,changePrecommitment:hash(1n,2n)}),'change-secret binding');
+await assert.rejects(factory.connect(submitter).execute.staticCall(...splitProof,{...route,output:0}),'output binding');
+await(await token.setRate(1e18.toString())).wait();
+await assert.rejects(factory.connect(submitter).execute.staticCall(...splitProof,route),'slippage atomically reverts');
+assert.equal(await pool.spent(splitNullifier),false);
+assert.equal(await provider.getCode(predicted),'0x');
+await(await token.setRate('1200000000000000000')).wait();
+const beforeEth=await provider.getBalance(recipientAddress);
+const expectedEth=await reserve.quote(route.gross-route.fee);
+await(await factory.connect(submitter).execute(...splitProof,route)).wait();
+const change=splitValue-route.gross;leaves.push(hash(change,changePre));
+assert.equal(await pool.root(),BigInt(path(3).root));
+assert.equal(await pool.liabilities(),change);
+assert.equal(await token.balanceOf(await pool.getAddress()),change);
+assert.equal(await pool.depositor(leaves[3]),predicted);
+assert.equal(await provider.getBalance(recipientAddress,'latest'),beforeEth+expectedEth);
+await assert.rejects(factory.connect(submitter).execute.staticCall(...splitProof,route),'route replay');
+const changeExit={recipient:recipientAddress,relayer:ZeroAddress,fee:0,deadline:route.deadline};
+const changeProof=await prove({...path(3),nullifierHash:hash(3456n,0n).toString(),value:change.toString(),context:(await pool.contextHash(changeExit)).toString(),mode:0,exposedCommitment:'0',nullifier:'3456',secret:'7890'});
+await(await pool.connect(submitter).withdraw(...changeProof,changeExit)).wait();
+assert.equal(await pool.liabilities(),0n);
+assert.equal(await token.balanceOf(await pool.getAddress()),0n);
+console.log('Partial ETH exit, slippage rollback, CREATE2 binding, preserved change-note ownership and permissionless full exit passed.');
+
 const forbidden=ganache.provider({logging:{quiet:true},chain:{chainId:1,hardfork:'shanghai'}});
 const forbiddenProvider=new BrowserProvider(forbidden);
 const forbiddenFactory=new ContractFactory(artifacts.pool.abi,artifacts.pool.bytecode,await forbiddenProvider.getSigner());

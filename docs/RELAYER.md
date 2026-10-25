@@ -2,6 +2,8 @@
 
 The shared immutable pool and proving artifacts are unchanged. Mainnet remains disabled.
 
+For partial withdrawals and ETH inventory swaps, see [atomic exits](ATOMIC_EXITS.md). The original full-wstETH endpoint described here remains available, including for change notes. The app also supports self-submitted full-wstETH exits when the relay is unavailable.
+
 ## Verified deployment
 
 Relay address: `0x0fd8177D2eE3Dd7C87E7B2AA22A6137919Ec7284`, initially funded with 0.03 Hoodi ETH. Production API: `https://yieldveil.vercel.app/api/relay`.

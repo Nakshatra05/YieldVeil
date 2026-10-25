@@ -17,7 +17,7 @@ export const POOL_ABI = [
  'event Deposited(address indexed account,uint256 indexed commitment,uint256 value,uint256 leafIndex,uint256 precommitment)',
  'event Withdrawn(uint256 indexed nullifierHash,address indexed recipient,uint256 value,uint256 fee,uint256 mode)',
 ];
-export type ChainNote = { id:string; chainId:560048; pool:string; depositor:string; nullifier:string; secret:string; precommitment:string; commitment?:string; value?:string; index?:number; txHash?:string; withdrawalTx?:string; depositBlock?:number; depositRate?:string; depositTimestamp?:number; status:'pending'|'active'|'spent'; createdAt:number };
+export type ChainNote = { id:string; chainId:560048; pool:string; depositor:string; nullifier:string; secret:string; precommitment:string; commitment?:string; value?:string; index?:number; txHash?:string; withdrawalTx?:string; kind?:'change'; basisBlock?:number; originNullifier?:string; depositBlock?:number; depositRate?:string; depositTimestamp?:number; status:'pending'|'active'|'spent'; createdAt:number };
 export const hash2 = (a:bigint|string,b:bigint|string) => poseidon2([BigInt(a),BigInt(b)]);
 function secretField():string { let n:bigint; do { n=BigInt('0x'+Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('')); } while(n===0n||n>=FIELD); return n.toString(); }
 export function newNote(pool:string,depositor:string):ChainNote { const nullifier=secretField(), secret=secretField(); return {id:crypto.randomUUID(),chainId:560048,pool,depositor,nullifier,secret,precommitment:hash2(nullifier,secret).toString(),status:'pending',createdAt:Date.now()}; }
@@ -35,8 +35,8 @@ export async function chainConnection(expected:Environment) {
   if(id!==NETWORKS[expected].id) throw new Error(`Switch your wallet to ${NETWORKS[expected].name}.`);
   const provider=new BrowserProvider(injected); const signer=await provider.getSigner(); return {provider,signer,address:await signer.getAddress()};
 }
-export function parseDeposit(logs:readonly {topics:readonly string[];data:string}[],note:ChainNote):ChainNote {
+export function parseDeposit(logs:readonly {topics:readonly string[];data:string;address?:string}[],note:ChainNote):ChainNote {
   const iface=new Interface(POOL_ABI);
-  for(const log of logs) { try { const e=iface.parseLog({topics:[...log.topics],data:log.data}); if(e?.name==='Deposited'&&e.args.precommitment.toString()===note.precommitment) return {...note,value:e.args.value.toString(),commitment:e.args.commitment.toString(),index:Number(e.args.leafIndex),status:'active'}; } catch { /* Different event. */ } }
+  for(const log of logs) { if(log.address&&log.address.toLowerCase()!==note.pool.toLowerCase())continue; try { const e=iface.parseLog({topics:[...log.topics],data:log.data}); if(e?.name==='Deposited'&&e.args.precommitment.toString()===note.precommitment) return {...note,value:e.args.value.toString(),commitment:e.args.commitment.toString(),index:Number(e.args.leafIndex),status:'active'}; } catch { /* Different event. */ } }
   throw new Error('Deposit event missing. Keep your backup and transaction hash for recovery.');
 }

@@ -9,9 +9,10 @@ export function noteYield(note:ChainNote,rate:bigint) {
 // A historical RPC failure must never turn today's rate into a fabricated baseline.
 export async function enrichDeposit(note:ChainNote,provider:Provider,blockNumber:number):Promise<ChainNote> {
   const base={...note,depositBlock:blockNumber};
+  if(note.kind==='change'&&note.basisBlock===undefined)return {...base,depositRate:undefined,depositTimestamp:undefined};
   try {
     const token=new Contract(NETWORKS.testnet.token,TOKEN_ABI,provider);
-    const [rate,block]=await Promise.all([token.stEthPerToken({blockTag:blockNumber}),provider.getBlock(blockNumber)]);
+    const [rate,block]=await Promise.all([token.stEthPerToken({blockTag:note.basisBlock??blockNumber}),provider.getBlock(note.basisBlock??blockNumber)]);
     if(!block||rate<=0n)return base;
     return {...base,depositRate:rate.toString(),depositTimestamp:block.timestamp};
   }catch{return base;}

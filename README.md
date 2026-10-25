@@ -25,7 +25,7 @@ Contracts and circuits are unaudited. The bundled proving key uses a local singl
 
 Hoodi relayed withdrawals quote a wstETH fee before local proof generation. The recipient needs no gas. Actual staking growth uses historical deposit-block rates. Guided recovery merges encrypted backups, reconciles receipts/nullifiers, and downloads a fresh backup. Deposits require successfully reopening the downloaded backup.
 
-No partial withdrawal, ETH redemption, association-set provider, cross-chain exit or guaranteed anonymity. Amounts, timing, small pools, RPC queries and relayer request metadata can link activity. See docs/RELAYER.md for operating limits.
+Partial withdrawals and funded Hoodi ETH swaps are available through immutable atomic routes; see [atomic exits](docs/ATOMIC_EXITS.md). Existing notes and proving artifacts remain valid. There is no Circle USDC on Ethereum Hoodi, association-set provider, cross-chain exit or guaranteed anonymity. Amounts, timing, small pools, RPC queries and relayer request metadata can link activity. See docs/RELAYER.md for operating limits.
 
 ## Run and verify
 

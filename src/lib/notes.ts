@@ -15,7 +15,10 @@ export function validateNotes(data:unknown):asserts data is ChainNote[] {
     if(n.status!=='pending' && (typeof n.value!=='string'||!/^\d{1,30}$/.test(n.value)||BigInt(n.value)<=0n||BigInt(n.value)>10n**17n||hash2(n.value,n.precommitment).toString()!==n.commitment)) throw new Error('Invalid note commitment.');
     if(n.txHash!==undefined&&!/^0x[\da-fA-F]{64}$/.test(n.txHash)) throw new Error('Invalid transaction hash.');
     if(n.depositRate!==undefined&&(typeof n.depositRate!=='string'||!/^\d{1,30}$/.test(n.depositRate)||BigInt(n.depositRate)<=0n))throw new Error('Invalid historical rate.');
-    for(const f of ['depositBlock','depositTimestamp'])if(n[f]!==undefined&&(!Number.isSafeInteger(n[f])||n[f]<0))throw new Error('Invalid deposit metadata.');
+    for(const f of ['depositBlock','depositTimestamp','basisBlock'])if(n[f]!==undefined&&(!Number.isSafeInteger(n[f])||n[f]<0))throw new Error('Invalid deposit metadata.');
+    if(n.kind!==undefined&&n.kind!=='change')throw new Error('Invalid note type.');
+    if(n.originNullifier!==undefined&&(typeof n.originNullifier!=='string'||!/^\d{1,78}$/.test(n.originNullifier)||BigInt(n.originNullifier)>=FIELD))throw new Error('Invalid origin.');
+    if(n.kind==='change'&&(!n.value||!/^\d{1,30}$/.test(n.value)||BigInt(n.value)<=0n||BigInt(n.value)>10n**17n||hash2(n.value,n.precommitment).toString()!==n.commitment))throw new Error('Invalid change note.');
   }
 }
 export function mergeNotes(existing:ChainNote[],incoming:ChainNote[]):ChainNote[]{

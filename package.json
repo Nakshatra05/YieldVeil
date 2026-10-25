@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "zk:build": "node scripts/build-zk.mjs --local-test-setup",
-    "contracts:build": "node scripts/compile-contracts.mjs",
+    "contracts:build": "node scripts/compile-contracts.mjs && node scripts/compile-routes.mjs",
     "test:protocol": "node scripts/test-protocol.mjs"
   },
   "dependencies": {
