@@ -1,0 +1,23 @@
+{
+  "network": "Base Sepolia",
+  "chainId": 84532,
+  "pool": "0x43Fd67731Ae42b39B989136dB3257e73a1020ECA",
+  "market": "0x571621Ce60Cebb0c1D442B5afb38B1663C6Bf017",
+  "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "deploymentTx": "0x3bc7ca2ca22254b28f318949b49503945dc8a67bcb829b22fa228dfbf9c1d17a",
+  "depositTx": "0x4bdfd8a0a0edf209137c1604d352f97436cfa4680ef3f7e1cd8cf1168b49ee60",
+  "withdrawalTx": "0x9c420990c97b697059df8ccfed6a560170bdf34f61bbf9eb9557ce127d420069",
+  "depositAssets": "100000",
+  "initialRedeemable": "99998",
+  "initialNetGrowth": "-2",
+  "withdrawnGross": "99998",
+  "received": "89998",
+  "relayFee": "10000",
+  "gasUsed": "409072",
+  "status": 1,
+  "liabilitiesAfter": "0",
+  "noteSpent": true,
+  "browserProof": true,
+  "predepositBackupRecovered": true,
+  "description": "Real Circle test USDC supplied to and redeemed from real Compound III. QA recipient is the operator to recycle test funds; this is functional verification, not an anonymity claim."
+}

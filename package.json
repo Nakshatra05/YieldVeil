@@ -10,8 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "zk:build": "node scripts/build-zk.mjs --local-test-setup",
-    "contracts:build": "node scripts/compile-contracts.mjs && node scripts/compile-routes.mjs && node scripts/compile-usdc.mjs",
-    "test:protocol": "node scripts/test-protocol.mjs"
+    "contracts:build": "node scripts/compile-contracts.mjs && node scripts/compile-routes.mjs && node scripts/compile-usdc.mjs && node scripts/compile-compound.mjs",
+    "test:protocol": "node scripts/test-protocol.mjs",
+    "test:lending": "node scripts/test-lending.mjs"
   },
   "dependencies": {
     "ethers": "^6.17.0",

@@ -36,3 +36,7 @@ Set `BASE_USDC_RELAYER_ENABLED=false` to disable this relay or `BASE_SEPOLIA_RPC
 Amounts, recipient, timing and network metadata remain observable. A small pool does not guarantee anonymity. The same unaudited testnet-only local trusted setup applies; this release is not a production security claim.
 
 Unit tests cover backup compatibility/isolation, pending commitment integrity, merge safety, HMAC domain separation and proof context validation. Local EVM tests use actual Groth16 proofs for both the original Hoodi behavior and the USDC pool, including six-decimal conservation, deposit limits, unauthorized relay attempts, cross-pool rejection and replay. Public network evidence is recorded in `base-usdc-verification.json` after the live test.
+
+## Optional lending pool
+
+New deposits can opt into the separate [Compound III lending vault](LENDING.md). This original pool continues holding USDC without lending; all existing notes and backups work unchanged. Opening the new vault does not migrate balances.

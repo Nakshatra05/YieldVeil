@@ -6,6 +6,8 @@
 
 [USDC vault](https://yieldveil.vercel.app/app/usdc): a separate Base Sepolia pool for Circle test USDC, with browser proofs, a funded relayer, self-submitted withdrawals and isolated recovery backups. It holds USDC without yield; staking yield remains in the Hoodi wstETH vault. There is no bridge or ETH-to-USDC conversion between pools. See [USDC deployment and operation](docs/USDC.md).
 
+[USDC lending vault](https://yieldveil.vercel.app/app/usdc/yield): an opt-in, separate Compound III pool on Base Sepolia. It supplies the same Circle test USDC and displays current redeemable value minus original deposits, including rounding and losses, never projected APY. Existing Hoodi and USDC notes keep their original contracts and recovery formats. See [lending accounting and risks](docs/LENDING.md).
+
 A neobrutalist landing page and wallet-connected privacy vault with immutable wstETH custody, Circom membership/ownership proofs, a generated Groth16 Solidity verifier, and browser proving. Deposits require wallet transactions; private withdrawals use a funded Hoodi relayer and confirmed receipts. No simulated balances or transaction-success fallback.
 
 ## Release status
@@ -38,6 +40,7 @@ npm ci
 npm test
 npm run contracts:build
 npm run test:protocol
+npm run test:lending
 npm run build
 npm run dev
 ```

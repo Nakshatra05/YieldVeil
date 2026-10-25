@@ -17,6 +17,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run contracts:build
-      - run: git diff --exit-code -- public/contracts/artifacts.json public/contracts/routes.json public/contracts/usdc.json
+      - run: git diff --exit-code -- public/contracts/artifacts.json public/contracts/routes.json public/contracts/usdc.json public/contracts/compound.json
       - run: npm run test:protocol
+      - run: npm run test:lending
       - run: npm run build

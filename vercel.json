@@ -11,6 +11,9 @@
     },
     "api/usdc-relay.mjs": {
       "maxDuration": 60
+    },
+    "api/lending-relay.mjs": {
+      "maxDuration": 60
     }
   },
   "headers": [
